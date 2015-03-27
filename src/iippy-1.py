@@ -2,89 +2,77 @@
 # input will come from buttons and an input field
 # all output for the game will be printed in the console
 
-
 import simplegui
-import random
 import math
+import random
 
-global num_guess , num_secret , num_remain , num_range1 ,num_range2
-
+#Intializing global variables
+RANGE=100
+status=''
 
 # helper function to start and restart the game
 def new_game():
-    # initialize global variables used in your code here  
-    pass
+    global RANGE,n,secret_num
+    secret_num=random.randrange(0, 100)
+    print "New Game.Range from 0 to",RANGE
+    status='NEW GAME'
+    n=math.ceil(math.log(RANGE-0+1,2))
+    n=int(n)
+    print "You have %d guesses.\n"%n
+    return RANGE
 
 # define event handlers for control panel
-
 def range100():
-    # button that changes the range to [0,100) and starts a new game 
-    global num_guess , num_secret , num_remain , num_range1 ,num_range2
-    num_secret = random.randint(0, 100) 
-    num_range1 = 0 
-    num_range2 = 100
-    num_remain = 7
-    print "New game.Range is from 0 to 100"
+    global RANGE
+    RANGE=100
+    new_game()
     
-    print "Number of remaining guesses is", num_remain
-   
-   
-    return num_remain
-  
-    
-    
-    
-  
 def range1000():
-    # button that changes the range to [0,1000) and starts a new game     
-    global num_guess , num_secret , num_remain , num_range1 ,num_range2
-    num_secret = random.randint(0, 1000)
-    num_range1 = 0 
-    num_range2 = 1000
-    num_remain = 10
-    print "New game.Range is from 0 to 1000"
+    global RANGE
+    RANGE=1000
+    new_game()
+
+def game(guess):
+    global RANGE,n,status,secret_num
+    print "Your guess is",guess
     
-    print "Number of remaining guesses is", num_remain
-    
-    
-    return num_remain
-    
-def input_guess(guess):
-    # main game logic goes here	
-    global num_guess , num_remain , num_range1 ,num_range2
-    num_guess = int(guess)
-    print "Guess was" , guess
-    num_remain -=1 
-    print "Number of remaining guesses is", num_remain
-    if num_remain >= 0:
-            if num_guess == num_secret:
-                print "Correct!"
-            elif num_range1 < num_guess < num_secret:
-                print "Higher!"
-                num_range1 = num_guess
-            elif num_secret < num_guess < num_range2:
-                print "Lower!"
-                num_range2 = num_guess
-            else:     
-                print "The wrong number!"     
+
+    if n>1:
+        n-=1
+        print "Your remaining guesses are",n
+        if int(guess)<secret_num:
+            print "Secret number is higher than your guess\n"
+            status="Try higher"
+        
+        elif int(guess)>secret_num:
+            print "Secret number is lower than your guess\n"
+            status='Try lower'
+        
+        else:
+            print "Correct. You win!!!\n"
+            status="Correct"
+            new_game()
     else:
-            print "Game over!"
-    return num_remain
-    return num_guess
+        print "Game over. Try Again!!!\n"
+        status="Game over."
+        new_game()
+        
+   
+    return status
 
-    
-# create frame
-f = simplegui.create_frame("Guess the number",300,300)
+def draw(canvas):
+     canvas.draw_text(status,[70,100],20,"White")
 
-# register event handlers for control elements and start frame
-f.add_button("Range is [0,100 )",range100, 200)
-f.add_button("Range is [0,1000 )",range1000, 200)
-f.add_input("Enter a guess",input_guess , 200)
+# register event handlers for control elements and start frame       
+frame=simplegui.create_frame("Guess the Number",200,200)
+frame.add_button("RANGE (0-100)",range100,150)
+frame.add_button("RANGE (0-1000)", range1000,150)
+frame.add_input("Enter your guess:",game,150)
+frame.set_draw_handler(draw)
 
-
+frame.start()
 
 # call new_game 
 new_game()
-
 
 # always remember to check your completed program against the grading rubric
